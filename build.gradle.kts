@@ -9,7 +9,7 @@ plugins {
 
 tasks.register("clean") {
     doFirst {
-        delete(rootProject.buildDir)
+        delete(rootProject.layout.buildDirectory)
     }
 }
 
@@ -34,18 +34,18 @@ if (secretPropsFile.exists()) {
     properties.forEach { name, value -> extra[name as String] = value }
 } else {
     // システム環境変数から読み出す。CI/CD 用
-    extra["centralPortalUsername"] = System.getenv("CENTRAL_PORTAL_USERNAME")
-    extra["centralPortalPassword"] = System.getenv("CENTRAL_PORTAL_PASSWORD")
-    extra["sonatypeStagingProfileId"] = System.getenv("SONATYPE_STAGING_PROFILE_ID")
-    extra["signing.keyId"] = System.getenv("SIGNING_KEY_ID")
-    extra["signing.password"] = System.getenv("SIGNING_PASSWORD")
-    extra["signing.key"] = System.getenv("SIGNING_KEY")
+    extra["centralPortalUsername"] = System.getenv("CENTRAL_PORTAL_USERNAME") ?: ""
+    extra["centralPortalPassword"] = System.getenv("CENTRAL_PORTAL_PASSWORD") ?: ""
+    extra["sonatypeStagingProfileId"] = System.getenv("SONATYPE_STAGING_PROFILE_ID") ?: ""
+    extra["signing.keyId"] = System.getenv("SIGNING_KEY_ID") ?: ""
+    extra["signing.password"] = System.getenv("SIGNING_PASSWORD") ?: ""
+    extra["signing.key"] = System.getenv("SIGNING_KEY") ?: ""
 }
 
 // Sonatype centralPortal リポジトリ情報
 nexusPublishing.repositories.sonatype {
-    username.set(extra["centralPortalUsername"] as String)
-    password.set(extra["centralPortalPassword"] as String)
+    username.set((extra["centralPortalUsername"] as? String) ?: "")
+    password.set((extra["centralPortalPassword"] as? String) ?: "")
     nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
     snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
 }
